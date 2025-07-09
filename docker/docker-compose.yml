@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: cursor_ai_postgres
+    environment:
+      POSTGRES_DB: cursor_ai_example
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - cursor_ai_network
+
+  # Redis for session management (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: cursor_ai_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - cursor_ai_network
+
+  # pgAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: cursor_ai_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - cursor_ai_network
+
+volumes:
+  postgres_data:
+
+networks:
+  cursor_ai_network:
+    driver: bridge
